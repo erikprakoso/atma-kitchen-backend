@@ -18,7 +18,7 @@ class PesananTransaksiResources extends ResourceCollection
     {
         return [
             'status' => 200,
-            'message' => 'Berhasil mengambil data',
+            'message' => 'Berhasil',
             'data' => $this->collection,
         ];
     }

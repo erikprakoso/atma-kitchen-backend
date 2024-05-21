@@ -43,11 +43,11 @@ class PesananTransaksiController extends Controller
     public function show(string $id)
     {
         $pesanan = DB::table('detail_transaksi as a')
-        ->join('transaksis as b', 'a.transaksi_id', '=', 'b.id')
-        ->join('dukpro as c', 'a.produk_id', '=', 'c.id')
-        ->join('users as d', 'b.user_id', '=', 'd.id')
-        ->select('c.nama', 'a.jumlah_produk', 'b.tanggal_transaksi', 'b.alamat_pengantaran', 'b.total_harga', 'b.status_transaksi')
-        ->where('d.id', $id)
+            ->join('transaksis as b', 'a.transaksi_id', '=', 'b.id')
+            ->join('dukpro as c', 'a.produk_id', '=', 'c.id')
+            ->join('users as d', 'b.user_id', '=', 'd.id')
+            ->select('c.nama', 'a.jumlah_produk', 'b.tanggal_transaksi', 'b.alamat_pengantaran', 'b.total_harga', 'b.status_transaksi')
+            ->where('d.id', $id)
             ->get();
 
         if ($pesanan->isEmpty()) {
@@ -60,19 +60,48 @@ class PesananTransaksiController extends Controller
     public function showByNameProduk(string $name, string $id)
     {
         $pesanan = DB::table('detail_transaksi as a')
-        ->join('transaksis as b', 'a.transaksi_id', '=', 'b.id')
-        ->join('dukpro as c', 'a.produk_id', '=', 'c.id')
-        ->join('users as d', 'b.user_id', '=', 'd.id')
-        ->select('c.nama', 'a.jumlah_produk', 'b.tanggal_transaksi', 'b.alamat_pengantaran', 'b.total_harga', 'b.status_transaksi')
-        ->where('c.nama', 'like', '%' . $name . '%')
+            ->join('transaksis as b', 'a.transaksi_id', '=', 'b.id')
+            ->join('dukpro as c', 'a.produk_id', '=', 'c.id')
+            ->join('users as d', 'b.user_id', '=', 'd.id')
+            ->select('c.nama', 'a.jumlah_produk', 'b.tanggal_transaksi', 'b.alamat_pengantaran', 'b.total_harga', 'b.status_transaksi')
+            ->where('c.nama', 'like', '%' . $name . '%')
             ->where('d.id', $id)
             ->get();
 
         if ($pesanan->isEmpty()) {
-            return response()->json(['status' => 404,'message' => 'Pesanan tidak ditemukan'], 404);
+            return response()->json(['status' => 404, 'message' => 'Pesanan tidak ditemukan'], 404);
         }
 
         return new PesananTransaksiResources($pesanan);
+    }
+
+    public function showByStatus(string $status)
+    {
+        $transaction = DB::table('transaksis as a')
+            ->join('users as b', 'a.user_id', '=', 'b.id')
+            ->select('a.id', 'a.tanggal_transaksi', 'a.total_harga', 'a.status_transaksi', 'b.name')
+            ->where('a.status_transaksi', $status)
+            ->get();
+
+        if ($transaction->isEmpty()) {
+            return response()->json(['status' => 404, 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        return new PesananTransaksiResources($transaction);
+    }
+
+    public function updateStatus(Request $request, string $id)
+    {
+        $pesanan = Transaksi::find($id);
+
+        if (!$pesanan) {
+            return response()->json(['status' => 404, 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        $pesanan->status_transaksi = $request->status;
+        $pesanan->save();
+
+        return new PesananTransaksiResources($pesanan->toArray());
     }
 
 

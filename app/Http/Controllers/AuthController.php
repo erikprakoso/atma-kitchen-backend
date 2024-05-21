@@ -25,7 +25,7 @@ class AuthController extends Controller
         // return User::all();
         // $request-> email = "customer@example.com";
 
-        $user = $this->users->where('email', 'customer@example.com')->first();
+        $user = $this->users->where('email', 'customer1@gmail.com')->first();
         return response()->json($user);
         // return $user::all();
     }
